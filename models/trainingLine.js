@@ -28,22 +28,37 @@ const trainingLineDataSchema = mongoose.Schema({
         maxLenght: 50,
         default: ''
     }
-}, { strict: false })
+},)
 
 
 const TrainingLine = mongoose.model('TrainingLine', trainingLineDataSchema)
 
+
 function validateTrainingLine(training) {
     const schema = Joi.object({
-        id: Joi.objectId(),
+        _id: Joi.objectId(),
         trainingId: Joi.objectId().required(),
         exerciseId: Joi.objectId(),
         reps: Joi.number(),
         restTime: Joi.number(),
-        note: Joi.string().max(50)
+        note: Joi.string().max(50).min(0)
     })
+    return schema.validate(training)
+}
+function validateTrainingLineArray(training) {
+    const schema = Joi.array().items(Joi.object(
+        {
+            _id: Joi.objectId(),
+            trainingId: Joi.objectId().required(),
+            exerciseId: Joi.objectId(),
+            reps: Joi.number(),
+            restTime: Joi.number(),
+            note: Joi.string().max(50).min(0)
+        }
+    ))
     return schema.validate(training)
 }
 
 exports.TrainingLine = TrainingLine
 exports.validateTrainingLine = validateTrainingLine
+exports.validateTrainingLineArray = validateTrainingLineArray

@@ -1,17 +1,17 @@
 const mongoose = require('mongoose')
 const express = require('express')
 const router = express.Router()
-const { TrainingLine, validateTrainingLine } = require('../models/trainingLine')
+const { TrainingLine, validateTrainingLine, validateTrainingLineArray } = require('../models/trainingLine')
 
 
 router.get('/', async (req, res) => {
-    const trainingLine = await TrainingLine.find().populate('trainingId exerciseId')
+    const trainingLine = await TrainingLine.find({ exerciseId: { $ne: '6384a9c95cc12ea42d040af2' } }).populate('trainingId exerciseId')
     if (!trainingLine) res.status(404).send('No TrainingLines found.')
 
     res.send(trainingLine)
 })
 router.get('/:trainingId', async (req, res) => {
-    const trainingLine = await TrainingLine.find().populate('trainingId exerciseId')
+    const trainingLine = await TrainingLine.find({ exerciseId: { $ne: '6384a9c95cc12ea42d040af2' } }).populate('trainingId exerciseId')
     if (!trainingLine) res.status(404).send('No TrainingLines found.')
     let filtered = trainingLine.filter(tl => tl.trainingId._id == req.params.trainingId)
 
@@ -28,16 +28,59 @@ router.post('/', async (req, res) => {
 
     await newLine.save()
 
-    res.send(newLine)
+    const populatedNewLine = await TrainingLine.findById(newLine._id).populate('trainingId exerciseId')
+
+    res.send(populatedNewLine)
 })
 
-router.put('/', async (req, res) => {
+router.post('/all', async (req, res) => {
+    const result = validateTrainingLineArray(req.body)
+    if (result.error) return res.status(400).send(result.error.details[0].message)
+
+    let trainingLines = [...req.body]
+
+    await TrainingLine.deleteMany({ trainingId: trainingLines[0].trainingId })
+
+    for (const trainingLine of trainingLines) {
+        const newLine = TrainingLine({
+            trainingId: trainingLine.trainingId,
+            exerciseId: trainingLine.exerciseId,
+            reps: trainingLine.reps,
+            restTime: trainingLine.restTime,
+            note: trainingLine.note
+        })
+        await newLine.save()
+    }
+
+    res.send()
+})
+
+router.put('/all', async (req, res) => {
+    const result = validateTrainingLineArray(req.body)
+    if (result.error) return res.status(400).send(result.error.details[0].message)
+
+    let trainingLines = [...req.body]
+
+    for (const trainingLine of trainingLines) {
+        await TrainingLine.findByIdAndUpdate(trainingLine._id, {
+            trainingId: trainingLine.trainingId,
+            exerciseId: trainingLine.exerciseId,
+            reps: trainingLine.reps,
+            restTime: trainingLine.restTime,
+            note: trainingLine.note
+        })
+    }
+
+    res.send()
+})
+
+router.put('/:id', async (req, res) => {
     const result = validateTrainingLine(req.body)
     if (result.error) return res.status(400).send(result.error.details[0].message)
-    console.log(req.body.id)
-    if (!req.body.id) return res.status(404).send('TrainingLine with the given id was not found.')
 
-    const trainingLine = await TrainingLine.findByIdAndUpdate(req.body.id, {
+    if (!req.params.id) return res.status(404).send('TrainingLine with the given id was not found.')
+
+    const trainingLine = await TrainingLine.findByIdAndUpdate(req.params.id, {
         exerciseId: req.body.exerciseId,
         reps: req.body.reps,
         restTime: req.body.restTime,
@@ -45,14 +88,21 @@ router.put('/', async (req, res) => {
     }, { new: true })
 
 
-    res.send(trainingLine)
+    res.send("Updated")
 })
 
-router.delete('/', async (req, res) => {
-    const trainingLine = await TrainingLine.findByIdAndRemove(req.body.id)
+router.delete('/:id', async (req, res) => {
+    const trainingLine = await TrainingLine.findByIdAndRemove(req.params.id)
     if (!trainingLine) res.status(404).send('TrainingLine with the given id was not found.')
 
-    res.send(trainingLine)
+    return res.send(trainingLine)
+})
+
+router.delete('/all/:id', async (req, res) => {
+    const trainingLine = await TrainingLine.deleteMany({ trainingId: req.params.id })
+    if (!trainingLine) res.status(404).send('TrainingLine with the given id was not found.')
+
+    // return res.send(trainingLine)
 })
 
 
