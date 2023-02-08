@@ -52,7 +52,9 @@ router.post('/all', async (req, res) => {
         await newLine.save()
     }
 
-    res.send()
+    const populatedNewLine = await TrainingLine.findById(newLine._id).populate('trainingId exerciseId')
+
+    res.send(populatedNewLine)
 })
 
 router.put('/all', async (req, res) => {

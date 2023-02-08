@@ -5,7 +5,7 @@ const { Exercise, validateExercise } = require('../models/exercise')
 const validateObjectId = require('../middleware/validateObjectId')
 
 router.get('/', async (req, res) => {
-    const exercise = await Exercise.find({ _id: { $ne: '6384a9c95cc12ea42d040af2' } }).sort('name')
+    const exercise = await Exercise.find().sort('name')
     res.send(exercise)
 })
 

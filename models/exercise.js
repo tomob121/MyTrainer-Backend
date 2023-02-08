@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 
 const exerciseSchema = {
     title: {
@@ -23,6 +24,7 @@ const Exercise = mongoose.model('Exercise', mongoose.Schema(exerciseSchema))
 
 const validateExercise = function (req) {
     const schema = Joi.object({
+        _id: Joi.objectId(),
         title: Joi.string().min(3).max(40).required(),
         type: Joi.string().required(),
         bodyPart: Joi.string().required()

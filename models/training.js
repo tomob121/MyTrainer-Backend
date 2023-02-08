@@ -1,4 +1,5 @@
 const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 const mongoose = require('mongoose')
 const { Exercise } = require('../models/exercise')
 const validateExercise = require('../models/exercise')
@@ -32,6 +33,7 @@ trainingSchema.methods.addExercise = async function (exerciseId) {
 
 function validateTraining(training) {
     const schema = Joi.object({
+        _id: Joi.objectId(),
         title: Joi.string().min(0).max(50).required(),
         trainingLines: Joi.array(),
         duration: Joi.number().min(0).max(999),
