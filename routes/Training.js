@@ -11,8 +11,9 @@ router.get('/', async (req, res) => {
     res.send(training)
 })
 
-router.get('/:id', async (req, res) => {
+router.get('/:id',[validateObjectId], async (req, res) => {
     const training = await Training.findById(req.params.id)
+    
     if (!training) return res.status(404).send('No training found with the given Id')
 
     res.send(training)

@@ -23,17 +23,8 @@ const trainingSchema = mongoose.Schema({
 
 const Training = mongoose.model('Training', trainingSchema)
 
-trainingSchema.methods.addExercise = async function (exerciseId) {
-    const exercise = await Exercise.findById(exerciseId)
-    const result = validateExercise(exercise)
-    if (result.error) return res.status(400).send(result.error.details[0].message)
-
-    exercises.push(exercise)
-}
-
 function validateTraining(training) {
     const schema = Joi.object({
-        _id: Joi.objectId(),
         title: Joi.string().min(0).max(50).required(),
         trainingLines: Joi.array(),
         duration: Joi.number().min(0).max(999),

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const express = require('express')
 const router = express.Router()
+const  validateObjectId  = require('../middleware/validateObjectId')
 const { TrainingLine, validateTrainingLine, validateTrainingLineArray } = require('../models/trainingLine')
 
 
@@ -73,7 +74,9 @@ router.put('/all', async (req, res) => {
         })
     }
 
-    res.send()
+    const returnTrainingLInes = await TrainingLine.find({ exerciseId: { $ne: '6384a9c95cc12ea42d040af2' }, trainingId: trainingLines[0].trainingId }).populate('trainingId exerciseId')
+
+    res.send(returnTrainingLInes)
 })
 
 router.put('/:id', async (req, res) => {
