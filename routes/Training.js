@@ -48,8 +48,14 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const exercise = await Training.findByIdAndRemove(req.params.id)
     if (!exercise) return res.status(404).send('Exercise with the given id was not found')
-    // const trainingLines = await TrainingLine.deleteMany({ trainingId: req.params.id })
-    // if(!trainingLines)
+    const trainingLines = await TrainingLine.find()
+    for (const trainingLine of trainingLines) {
+        if (trainingLine.trainingId == req.params.id) {
+            console.log('hello');
+            await TrainingLine.findByIdAndRemove(trainingLine._id)
+        }
+    }
+
 
     return res.send('Deleted')
 
