@@ -3,20 +3,21 @@ const express = require('express')
 const router = express.Router()
 const { Training, validateTraining } = require('../models/training')
 const validateObjectId = require('../middleware/validateObjectId')
+const { TrainingLine } = require('../models/trainingLine')
 
 router.get('/', async (req, res) => {
     const training = await Training.find().sort('title')
     if (!training) res.status(404).send('No trainings found')
 
-    res.send(training)
+    return res.send(training)
 })
 
-router.get('/:id',[validateObjectId], async (req, res) => {
+router.get('/:id', [validateObjectId], async (req, res) => {
     const training = await Training.findById(req.params.id)
-    
+
     if (!training) return res.status(404).send('No training found with the given Id')
 
-    res.send(training)
+    return res.send(training)
 })
 
 router.post('/', async (req, res) => {
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
         title: req.body.title,
     })
     await training.save()
-    res.send(training)
+    return res.send(training)
 })
 
 router.put('/:id', async (req, res) => {
@@ -41,14 +42,17 @@ router.put('/:id', async (req, res) => {
         timer: req.body.timer
     }, { new: true })
 
-    res.send(training)
+    return res.send(training)
 })
 
 router.delete('/:id', async (req, res) => {
     const exercise = await Training.findByIdAndRemove(req.params.id)
     if (!exercise) return res.status(404).send('Exercise with the given id was not found')
+    // const trainingLines = await TrainingLine.deleteMany({ trainingId: req.params.id })
+    // if(!trainingLines)
 
-    res.send(exercise)
+    return res.send('Deleted')
+
 })
 
 module.exports = router

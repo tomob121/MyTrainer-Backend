@@ -96,6 +96,7 @@ router.put('/:id', async (req, res) => {
     res.send("Updated")
 })
 
+
 router.delete('/:id', async (req, res) => {
     const trainingLine = await TrainingLine.findByIdAndRemove(req.params.id)
     if (!trainingLine) res.status(404).send('TrainingLine with the given id was not found.')
